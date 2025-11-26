@@ -1,1 +1,40 @@
+# Environment variables
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.pcap
+capture.pcap
+data/export.csv
+data/flows_export.csv
+data/sample.pcap
+models/saved_models/*.joblib
+!models/saved_models/.gitkeep
