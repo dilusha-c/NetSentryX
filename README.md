@@ -53,15 +53,32 @@ cd /home/dilusha/ids-project/dashboard && npm run dev
 
 ```bash
 # 1. Clone & setup Python
-git clone <repo-url> && cd ids-project
+git clone https://github.com/dilusha-c/NetSentryX.git
+cd NetSentryX
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Configure MongoDB (create .env file)
+# 2. Download CIC-IDS2017 Dataset
+# Download from: https://www.unb.ca/cic/datasets/ids-2017.html
+# Extract CSV files to: data/cic_raw/
+# Required files:
+#   - Monday-WorkingHours.pcap_ISCX.csv
+#   - Tuesday-WorkingHours.pcap_ISCX.csv
+#   - Wednesday-workingHours.pcap_ISCX.csv
+#   - Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv
+#   - Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv
+#   - Friday-WorkingHours-Morning.pcap_ISCX.csv
+#   - Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv
+#   - Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv
+
+# 3. Configure MongoDB (create .env file)
 MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net/idsdb"
 SSL_CERT_FILE=/path/to/.venv/lib/python3.12/site-packages/certifi/cacert.pem
 
-# 3. Setup Dashboard
+# 4. Train initial model
+python models/train.py
+
+# 5. Setup Dashboard
 cd dashboard && npm install
 ```
 

@@ -36,5 +36,6 @@ capture.pcap
 data/export.csv
 data/flows_export.csv
 data/sample.pcap
+data/cic_raw/
 models/saved_models/*.joblib
 !models/saved_models/.gitkeep
