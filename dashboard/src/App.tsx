@@ -45,6 +45,7 @@ export default function App() {
   const [showHistory, setShowHistory] = React.useState(false);
   const [showBlockedHistory, setShowBlockedHistory] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState<'dashboard' | 'network' | 'analytics'>('dashboard');
+  const [toggleLoading, setToggleLoading] = React.useState(false);
   
   const alertsPoll = usePolling(() => fetchAlerts(alertsLimit), 5000, [alertsLimit]);
   const blockedPoll = usePolling(() => fetchBlocked(50), 5000, []);
@@ -71,6 +72,18 @@ export default function App() {
     await updateConfig(payload);
     const fresh = await fetchConfig();
     configPoll.setData(fresh);
+  }
+
+  async function handleBlockingToggle() {
+    if (!config) return;
+    try {
+      setToggleLoading(true);
+      await updateConfig({ blocking_enabled: !config.blocking_enabled });
+      const fresh = await fetchConfig();
+      configPoll.setData(fresh);
+    } finally {
+      setToggleLoading(false);
+    }
   }
 
   async function handleManualBlock(ip: string, duration?: number, note?: string) {
@@ -183,6 +196,21 @@ export default function App() {
                 </span>
               ) : null}
             </div>
+            <button
+              onClick={handleBlockingToggle}
+              disabled={toggleLoading}
+              className={`rounded-md px-3 py-1 text-xs font-semibold focus:outline-none ${
+                (config?.blocking_enabled ?? true)
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              } ${toggleLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              {toggleLoading
+                ? 'Updating…'
+                : (config?.blocking_enabled ?? true)
+                  ? 'Real Blocking ON'
+                  : 'Real Blocking OFF'}
+            </button>
           </div>
         </div>
       </header>
