@@ -1,31 +1,50 @@
-#!/bin/bash
-# Start IDS Packet Capture - Captures ALL IP Traffic
-# This script automatically starts when needed
+#!/usr/bin/env bash
+set -e
+# Start IDS Packet Capture - portable version
 
-cd /home/dilusha/ids-project
+# Resolve project directory (script directory by default). You can override
+# by setting NETSENTRYX_PROJECT_DIR environment variable.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="${NETSENTRYX_PROJECT_DIR:-$SCRIPT_DIR}"
 
-# Activate virtual environment
-source .venv/bin/activate
+cd "$PROJECT_DIR"
 
-# Run packet capture for ALL IP traffic (no filter)
-# --mode live: Capture from network interface
-# --iface eth0: Monitor eth0 interface
-# --window 5: 5-second analysis windows
-# --step 1: Move window every 1 second
-# --post: Send data to API
-# --api-url: Backend detection endpoint
-# --bpf "ip": Capture ALL IP traffic (TCP, UDP, ICMP, everything)
+# Activate virtual environment if present (optional)
+if [ -f ".venv/bin/activate" ]; then
+  # shellcheck source=/dev/null
+  source .venv/bin/activate
+else
+  echo "Warning: .venv not found. Continuing with system Python."
+fi
+
+# Defaults (can be overridden via env vars)
+INTERFACE="${INTERFACE:-eth0}"
+WINDOW="${WINDOW:-5}"
+STEP="${STEP:-1}"
+BPF="${BPF:-ip}"
+API_URL="${API_URL:-http://127.0.0.1:8000/detect}"
 
 echo "Starting IDS Packet Capture..."
-echo "Capturing ALL IP traffic on interface eth0"
+echo "Project dir: $PROJECT_DIR"
+echo "Interface: $INTERFACE"
+echo "Window: $WINDOW sec, Step: $STEP sec"
+echo "BPF: $BPF"
+echo "API: $API_URL"
 echo "Press Ctrl+C to stop"
 echo ""
 
-sudo $(which python3) realtime_agent/realtime_extractor.py \
+# Prefer python3 if available
+PYTHON_CMD="$(which python3 2>/dev/null || which python 2>/dev/null)"
+if [ -z "$PYTHON_CMD" ]; then
+  echo "Error: python3 not found in PATH. Install Python 3 and try again." >&2
+  exit 2
+fi
+
+sudo "$PYTHON_CMD" realtime_agent/realtime_extractor.py \
   --mode live \
-  --iface eth0 \
-  --window 5 \
-  --step 1 \
+  --iface "$INTERFACE" \
+  --window "$WINDOW" \
+  --step "$STEP" \
   --post \
-  --api-url http://127.0.0.1:8000/detect \
-  --bpf "ip"
+  --api-url "$API_URL" \
+  --bpf "$BPF"
